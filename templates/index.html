@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <title>Biblioteca personal</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 2rem; }
+      form { margin-bottom: 1.5rem; }
+      label { display: block; margin-bottom: 0.25rem; }
+      input { padding: 0.5rem; margin-bottom: 0.75rem; width: 100%; max-width: 30rem; }
+      button { padding: 0.5rem 1rem; }
+      .flash { padding: 0.75rem; margin-bottom: 1rem; border-radius: 4px; }
+      .flash.error { background: #f8d7da; color: #721c24; }
+      .flash.success { background: #d4edda; color: #155724; }
+      table { border-collapse: collapse; width: 100%; max-width: 40rem; }
+      th, td { text-align: left; padding: 0.5rem; border-bottom: 1px solid #ccc; }
+      td form { display: inline; }
+    </style>
+  </head>
+  <body>
+    <h1>Biblioteca personal</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('library.add_book') }}" method="post">
+      <label for="title">Título</label>
+      <input id="title" name="title" required>
+
+      <label for="author">Autor</label>
+      <input id="author" name="author" required>
+
+      <label for="recipient">Correo para notificaciones</label>
+      <input id="recipient" name="recipient" value="{{ recipient or '' }}" placeholder="usuario@ejemplo.com">
+
+      <button type="submit">Agregar libro</button>
+    </form>
+
+    <h2>Libros registrados</h2>
+    {% if books %}
+      <table>
+        <thead>
+          <tr>
+            <th>Título</th>
+            <th>Autor</th>
+            <th>Registrado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for book in books %}
+            <tr>
+              <td>{{ book.title }}</td>
+              <td>{{ book.author }}</td>
+              <td>{{ book.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+              <td>
+                <form action="{{ url_for('library.delete_book', book_id=book.id) }}" method="post">
+                  <input type="hidden" name="recipient" value="{{ recipient or '' }}">
+                  <button type="submit">Eliminar</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>Aún no hay libros registrados.</p>
+    {% endif %}
+  </body>
+</html>
